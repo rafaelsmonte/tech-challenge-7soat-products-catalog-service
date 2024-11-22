@@ -1,0 +1,1 @@
+# tech-challenge-7soat-products-catalog-service
