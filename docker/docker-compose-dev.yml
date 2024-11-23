@@ -11,20 +11,20 @@ version: '3.8'
 # Networks
 #----------------------------------------------------------------------
 networks:
-  tech-challenge-payment-net:
+  tech-challenge-products-catalog-net:
     driver: bridge
 #----------------------------------------------------------------------
 # Volumes
 #----------------------------------------------------------------------
 volumes:
-  tech-challenge-payment-db-data: {}
+  tech-challenge-products-catalog-db-data: {}
 #----------------------------------------------------------------------
 # Services:
 #----------------------------------------------------------------------
 services:
-  tech-challenge-payment:
+  tech-challenge-products-catalog:
     image: node:16-bullseye
-    container_name: tech-challenge-payment
+    container_name: tech-challenge-products-catalog
     working_dir: /usr/src/app
     command: /usr/src/app/docker/docker-run-dev.sh
     user: '${DUID}:${DGID}'
@@ -33,34 +33,19 @@ services:
     ports:
       - '3000:3000'
     networks:
-      - tech-challenge-payment-net
+      - tech-challenge-products-catalog-net
     env_file:
       - ./dev-local.env
     depends_on:
-      - tech-challenge-payment-db
-  tech-challenge-payment-db:
+      - tech-challenge-products-catalog-db
+  tech-challenge-products-catalog-db:
     image: postgres:latest
-    container_name: tech-challenge-payment-db
+    container_name: tech-challenge-products-catalog-db
     ports:
       - 5432:5432
     networks:
-      - tech-challenge-payment-net
+      - tech-challenge-products-catalog-net
     env_file:
       - ./dev-local.env
     volumes:
-      - tech-challenge-payment-db-data:/var/lib/postgresql/data
-  localstack:
-    image: 'localstack/localstack:latest'
-    container_name: localstack
-    ports:
-      - '4566:4566'
-    volumes:
-      - '${LOCALSTACK_VOLUME_DIR:-/var/lib/localstack}:/var/lib/localstack'
-      - '/var/run/docker.sock:/var/run/docker.sock'
-      - ./localstack/sqs:/etc/localstack/init/ready.d
-    environment:
-      - AWS_DEFAULT_REGION=us-east-1
-      - EDGE_PORT=4566
-      - SERVICES=sns
-    networks:
-      - tech-challenge-payment-net
+      - tech-challenge-products-catalog-db-data:/var/lib/postgresql/data

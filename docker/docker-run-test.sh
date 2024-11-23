@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "STARTING DEVICES SERVICE"
+echo "STARTING PRODUCTS CATALOG SERVICE"
 
 # Install the project dependencies
 yarn install --network-concurrency 1

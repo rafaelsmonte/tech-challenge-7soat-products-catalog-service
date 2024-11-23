@@ -67,8 +67,8 @@ export class Stock {
   public setQuantity(quantity: number): void {
     this.quantity = quantity;
 
-    if (this.quantity < 1) {
-      throw new InvalidStockError('Quantity value must be higher than 0');
+    if (this.quantity < 0) {
+      throw new InvalidStockError('Quantity value must be higher than -1');
     }
   }
 }

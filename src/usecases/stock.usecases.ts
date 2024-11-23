@@ -3,9 +3,11 @@ import { IProductGateway } from '../interfaces/product.gateway.interface';
 import { IStockGateway } from '../interfaces/stock.gateway.interface';
 import { StockNotFoundError } from '../errors/stock-not-found.error';
 import { Stock } from '../entities/stock.entity';
+import { InsufficientStockError } from '../errors/insufficient-stock.error';
+import { ProductOutOfStockError } from '../errors/product-out-of-stock.error';
 
 export class StockUseCases {
-  static async update(
+  static async updateQuantityByProductId(
     stockGateway: IStockGateway,
     productGateway: IProductGateway,
     productId: number,
@@ -43,10 +45,15 @@ export class StockUseCases {
 
     const updatedQuantity = currentQuantity - requestedQuantity;
 
-    if (updatedQuantity < 0)
-      throw new InsufficientStockError(
-        `Insufficient stock. Only ${currentStock} products are available`,
-      );
+    if (updatedQuantity < 0) {
+      if (currentQuantity == 0) {
+        throw new ProductOutOfStockError(`Product out of stock`);
+      } else {
+        throw new InsufficientStockError(
+          `Insufficient stock. Only ${currentQuantity} products are available`,
+        );
+      }
+    }
 
     await stockGateway.updateQuantityByProductId(
       Stock.new(productId, updatedQuantity),

@@ -11,20 +11,20 @@ version: '3.8'
 # Networks
 #----------------------------------------------------------------------
 networks:
-  tech-challenge-payment-net-test:
+  tech-challenge-products-catalog-net-test:
     driver: bridge
 #----------------------------------------------------------------------
 # Volumes
 #----------------------------------------------------------------------
 volumes:
-  tech-challenge-payment-db-data-test: {}
+  tech-challenge-products-catalog-db-data-test: {}
 #----------------------------------------------------------------------
 # Services:
 #----------------------------------------------------------------------
 services:
-  tech-challenge-payment-test:
+  tech-challenge-products-catalog-test:
     image: node:16-bullseye
-    container_name: tech-challenge-payment-test
+    container_name: tech-challenge-products-catalog-test
     working_dir: /usr/src/app
     command: /usr/src/app/docker/docker-run-test.sh
     user: '${DUID}:${DGID}'
@@ -33,19 +33,19 @@ services:
     ports:
       - '3000:3000'
     networks:
-      - tech-challenge-payment-net-test
+      - tech-challenge-products-catalog-net-test
     env_file:
       - ./test-local.env
     depends_on:
-      - tech-challenge-payment-db-test
-  tech-challenge-payment-db-test:
+      - tech-challenge-products-catalog-db-test
+  tech-challenge-products-catalog-db-test:
     image: postgres:latest
-    container_name: tech-challenge-payment-db-test
+    container_name: tech-challenge-products-catalog-db-test
     ports:
       - 5433:5432
     networks:
-      - tech-challenge-payment-net-test
+      - tech-challenge-products-catalog-net-test
     env_file:
       - ./test-local.env
     volumes:
-      - tech-challenge-payment-db-data-test:/var/lib/postgresql/data
+      - tech-challenge-products-catalog-db-data-test:/var/lib/postgresql/data

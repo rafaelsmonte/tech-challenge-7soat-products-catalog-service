@@ -226,7 +226,7 @@ export class PrismaDatabase implements IDatabase {
         updatedStock.quantity,
       );
     } catch (error) {
-      throw new DatabaseError('Failed to update order');
+      throw new DatabaseError('Failed to update stock');
     }
   }
 }

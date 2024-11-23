@@ -13,7 +13,7 @@ export class StockController {
     const stockGateway = new StockGateway(database);
     const productGateway = new ProductGateway(database);
 
-    const stock = await StockUseCases.update(
+    const stock = await StockUseCases.updateQuantityByProductId(
       stockGateway,
       productGateway,
       productId,
