@@ -1,0 +1,54 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        Int          @id @default(autoincrement())
+  createdAt DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime     @updatedAt @db.Timestamptz(3)
+  type      CategoryType @default(MEAL)
+  product   Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  name        String   @db.VarChar(256)
+  price       Decimal  @db.Decimal(10, 2)
+  description String   @db.VarChar(256)
+  pictures    String[] @db.VarChar(256)
+  categoryId  Int
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  Stock    Stock?
+
+  @@map("products")
+}
+
+model Stock {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  quantity  Int
+  productId Int      @unique
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("stocks")
+}
+
+enum CategoryType {
+  MEAL
+  SIDE
+  DRINK
+  DESSERT
+}
