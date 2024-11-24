@@ -12,6 +12,7 @@ import { StockNotFoundError } from '../errors/stock-not-found.error';
 import { StockController } from '../controllers/stock.controller';
 import { InsufficientStockError } from '../errors/insufficient-stock.error';
 import { ProductOutOfStockError } from '../errors/product-out-of-stock.error';
+import { ProductWithQuantity } from 'src/types/product-with-quantity.type';
 
 export class ProductsCatalogApp {
   constructor(private database: IDatabase) {}
@@ -112,10 +113,10 @@ export class ProductsCatalogApp {
     );
 
     app.post('/stock/reserve', async (request: Request, response: Response) => {
-      const productId = Number(request.body.productId);
-      const quantity = Number(request.body.quantity);
+      const productsWithQuantity: ProductWithQuantity[] =
+        request.body.productsWithQuantity;
 
-      await StockController.reserve(this.database, productId, quantity)
+      await StockController.reserve(this.database, productsWithQuantity)
         .then((products) => {
           response
             .setHeader('Content-type', 'application/json')

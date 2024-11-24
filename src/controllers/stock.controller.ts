@@ -1,3 +1,4 @@
+import { ProductWithQuantity } from 'src/types/product-with-quantity.type';
 import { StockAdapter } from '../adapters/stock.adapter';
 import { ProductGateway } from '../gateways/product.gateway';
 import { StockGateway } from '../gateways/stock.gateway';
@@ -27,8 +28,7 @@ export class StockController {
 
   static async reserve(
     database: IDatabase,
-    productId: number,
-    quantity: number,
+    productsWithQuantity: ProductWithQuantity[],
   ): Promise<void> {
     const stockGateway = new StockGateway(database);
     const productGateway = new ProductGateway(database);
@@ -36,8 +36,7 @@ export class StockController {
     const stock = await StockUseCases.reserve(
       stockGateway,
       productGateway,
-      productId,
-      quantity,
+      productsWithQuantity,
     );
   }
 }
