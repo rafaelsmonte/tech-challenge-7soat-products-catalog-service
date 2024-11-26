@@ -13,6 +13,7 @@ import { StockController } from '../controllers/stock.controller';
 import { InsufficientStockError } from '../errors/insufficient-stock.error';
 import { ProductOutOfStockError } from '../errors/product-out-of-stock.error';
 import { ProductWithQuantity } from 'src/types/product-with-quantity.type';
+import { apiKeyMiddleware } from './api-key-auth.middleware';
 
 export class ProductsCatalogApp {
   constructor(private database: IDatabase) {}
@@ -112,19 +113,23 @@ export class ProductsCatalogApp {
       },
     );
 
-    app.post('/stock/reserve', async (request: Request, response: Response) => {
-      const productsWithQuantity: ProductWithQuantity[] =
-        request.body.productsWithQuantity;
+    app.post(
+      '/private/stock/reserve',
+      apiKeyMiddleware,
+      async (request: Request, response: Response) => {
+        const productsWithQuantity: ProductWithQuantity[] =
+          request.body.productsWithQuantity;
 
-      await StockController.reserve(this.database, productsWithQuantity)
-        .then((products) => {
-          response
-            .setHeader('Content-type', 'application/json')
-            .status(200)
-            .send(products);
-        })
-        .catch((error) => this.handleError(error, response));
-    });
+        await StockController.reserve(this.database, productsWithQuantity)
+          .then((products) => {
+            response
+              .setHeader('Content-type', 'application/json')
+              .status(200)
+              .send(products);
+          })
+          .catch((error) => this.handleError(error, response));
+      },
+    );
 
     app.listen(port, () => {
       console.log(`Tech challenge app listening on port ${port}`);

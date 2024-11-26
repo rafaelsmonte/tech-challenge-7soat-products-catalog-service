@@ -33,7 +33,7 @@ export class StockController {
     const stockGateway = new StockGateway(database);
     const productGateway = new ProductGateway(database);
 
-    const stock = await StockUseCases.reserve(
+    await StockUseCases.reserve(
       stockGateway,
       productGateway,
       productsWithQuantity,

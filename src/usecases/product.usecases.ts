@@ -75,7 +75,6 @@ export class ProductUseCases {
       Product.new(name, price, description, pictures, categoryId),
     );
 
-    // TODO criar o estoque a partir do produto? ou primeiramente criar o pedido e depois o estoque, separando por diferentes endpoints?
     const newStock = await stockGateway.create(
       Stock.new(newProduct.getId(), stockQuantity),
     );
