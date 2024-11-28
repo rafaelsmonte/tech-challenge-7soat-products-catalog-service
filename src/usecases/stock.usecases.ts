@@ -5,7 +5,7 @@ import { StockNotFoundError } from '../errors/stock-not-found.error';
 import { Stock } from '../entities/stock.entity';
 import { InsufficientStockError } from '../errors/insufficient-stock.error';
 import { ProductOutOfStockError } from '../errors/product-out-of-stock.error';
-import { ProductWithQuantity } from 'src/types/product-with-quantity.type';
+import { ProductWithQuantity } from '../types/product-with-quantity.type';
 
 export class StockUseCases {
   static async updateQuantityByProductId(

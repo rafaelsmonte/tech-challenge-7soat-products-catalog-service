@@ -1,4 +1,4 @@
-import { ProductWithQuantity } from 'src/types/product-with-quantity.type';
+import { ProductWithQuantity } from '../types/product-with-quantity.type';
 import { StockAdapter } from '../adapters/stock.adapter';
 import { ProductGateway } from '../gateways/product.gateway';
 import { StockGateway } from '../gateways/stock.gateway';

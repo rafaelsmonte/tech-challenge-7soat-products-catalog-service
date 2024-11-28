@@ -1,4 +1,4 @@
-import { IDatabase } from 'src/interfaces/database.interface';
+import { IDatabase } from '../interfaces/database.interface';
 import { Product } from '../entities/product.entity';
 import { ProductGateway } from './product.gateway';
 
@@ -21,12 +21,32 @@ describe('ProductGateway', () => {
   describe('findAll', () => {
     it('should return all products from the database', async () => {
       const mockProducts = [
-        new Product(1, new Date(), new Date(), 'Product 1', 100, 'Description 1', ['image1.jpg'], 1),
-        new Product(2, new Date(), new Date(), 'Product 2', 200, 'Description 2', ['image2.jpg'], 1),
+        new Product(
+          1,
+          new Date(),
+          new Date(),
+          'Product 1',
+          100,
+          'Description 1',
+          ['image1.jpg'],
+          1,
+        ),
+        new Product(
+          2,
+          new Date(),
+          new Date(),
+          'Product 2',
+          200,
+          'Description 2',
+          ['image2.jpg'],
+          1,
+        ),
       ];
 
       // Agora mockando corretamente o retorno da função
-      (mockDatabase.findAllProducts as jest.Mock).mockResolvedValue(mockProducts);
+      (mockDatabase.findAllProducts as jest.Mock).mockResolvedValue(
+        mockProducts,
+      );
 
       const result = await productGateway.findAll();
 
@@ -47,10 +67,21 @@ describe('ProductGateway', () => {
 
   describe('findById', () => {
     it('should return the product with the given id', async () => {
-      const mockProduct = new Product(1, new Date(), new Date(), 'Product 1', 100, 'Description 1', ['image1.jpg'], 1);
+      const mockProduct = new Product(
+        1,
+        new Date(),
+        new Date(),
+        'Product 1',
+        100,
+        'Description 1',
+        ['image1.jpg'],
+        1,
+      );
 
       // Mockando o retorno da função findProductById
-      (mockDatabase.findProductById as jest.Mock).mockResolvedValue(mockProduct);
+      (mockDatabase.findProductById as jest.Mock).mockResolvedValue(
+        mockProduct,
+      );
 
       const result = await productGateway.findById(1);
 
@@ -71,7 +102,16 @@ describe('ProductGateway', () => {
 
   describe('create', () => {
     it('should create a new product and return it', async () => {
-      const newProduct = new Product(3, new Date(), new Date(), 'Product 3', 300, 'Description 3', ['image3.jpg'], 2);
+      const newProduct = new Product(
+        3,
+        new Date(),
+        new Date(),
+        'Product 3',
+        300,
+        'Description 3',
+        ['image3.jpg'],
+        2,
+      );
       // Mockando o retorno da criação do produto
       (mockDatabase.createProduct as jest.Mock).mockResolvedValue(newProduct);
 

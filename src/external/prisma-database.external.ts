@@ -34,6 +34,7 @@ export class PrismaDatabase implements IDatabase {
           ),
       );
     } catch (error) {
+      console.log(`Database error: ${error}`);
       throw new DatabaseError('Failed to find categories');
     }
   }
@@ -54,6 +55,7 @@ export class PrismaDatabase implements IDatabase {
         category.type,
       );
     } catch (error) {
+      console.log(`Database error: ${error}`);
       throw new DatabaseError('Failed to find category');
     }
   }
@@ -77,6 +79,7 @@ export class PrismaDatabase implements IDatabase {
           ),
       );
     } catch (error) {
+      console.log(`Database error: ${error}`);
       throw new DatabaseError('Failed to find products');
     }
   }
@@ -102,6 +105,7 @@ export class PrismaDatabase implements IDatabase {
         product.categoryId,
       );
     } catch (error) {
+      console.log(`Database error: ${error}`);
       throw new DatabaseError('Failed to find product');
     }
   }
@@ -130,6 +134,7 @@ export class PrismaDatabase implements IDatabase {
         createdProduct.categoryId,
       );
     } catch (error) {
+      console.log(`Database error: ${error}`);
       throw new DatabaseError('Failed to save product');
     }
   }
@@ -138,6 +143,7 @@ export class PrismaDatabase implements IDatabase {
     try {
       await this.prismaClient.product.delete({ where: { id } });
     } catch (error) {
+      console.log(`Database error: ${error}`);
       throw new DatabaseError('Failed to delete product');
     }
   }
@@ -157,6 +163,7 @@ export class PrismaDatabase implements IDatabase {
           ),
       );
     } catch (error) {
+      console.log(`Database error: ${error}`);
       throw new DatabaseError('Failed to find stocks');
     }
   }
@@ -177,6 +184,7 @@ export class PrismaDatabase implements IDatabase {
         stock.quantity,
       );
     } catch (error) {
+      console.log(`Database error: ${error}`);
       throw new DatabaseError('Failed to find stock');
     }
   }
@@ -198,6 +206,7 @@ export class PrismaDatabase implements IDatabase {
         createdStock.quantity,
       );
     } catch (error) {
+      console.log(`Database error: ${error}`);
       throw new DatabaseError('Failed to save stock');
     }
   }
@@ -226,6 +235,7 @@ export class PrismaDatabase implements IDatabase {
         updatedStock.quantity,
       );
     } catch (error) {
+      console.log(`Database error: ${error}`);
       throw new DatabaseError('Failed to update stock');
     }
   }

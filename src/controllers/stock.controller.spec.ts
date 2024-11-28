@@ -3,7 +3,7 @@ import { IDatabase } from '../interfaces/database.interface';
 import { StockGateway } from '../gateways/stock.gateway';
 import { ProductGateway } from '../gateways/product.gateway';
 import { StockUseCases } from '../usecases/stock.usecases';
-import { ProductWithQuantity } from 'src/types/product-with-quantity.type';
+import { ProductWithQuantity } from '../types/product-with-quantity.type';
 import { StockAdapter } from '../adapters/stock.adapter';
 
 jest.mock('../gateways/stock.gateway');
@@ -25,10 +25,16 @@ describe('StockController', () => {
       const mockStock = { id: 1, quantity: 10 };
       const mockStockJson = JSON.stringify(mockStock);
 
-      (StockUseCases.updateQuantityByProductId as jest.Mock).mockResolvedValue(mockStock);
+      (StockUseCases.updateQuantityByProductId as jest.Mock).mockResolvedValue(
+        mockStock,
+      );
       (StockAdapter.adaptJson as jest.Mock).mockReturnValue(mockStockJson);
 
-      const result = await StockController.update(mockDatabase, productId, quantity);
+      const result = await StockController.update(
+        mockDatabase,
+        productId,
+        quantity,
+      );
 
       expect(StockGateway).toHaveBeenCalledWith(mockDatabase);
       expect(ProductGateway).toHaveBeenCalledWith(mockDatabase);

@@ -12,7 +12,7 @@ import { StockNotFoundError } from '../errors/stock-not-found.error';
 import { StockController } from '../controllers/stock.controller';
 import { InsufficientStockError } from '../errors/insufficient-stock.error';
 import { ProductOutOfStockError } from '../errors/product-out-of-stock.error';
-import { ProductWithQuantity } from 'src/types/product-with-quantity.type';
+import { ProductWithQuantity } from '../types/product-with-quantity.type';
 import { apiKeyMiddleware } from './api-key-auth.middleware';
 
 export class ProductsCatalogApp {
