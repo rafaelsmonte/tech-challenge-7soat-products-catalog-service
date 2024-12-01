@@ -11,6 +11,7 @@ jest.mock('../gateways/stock.gateway');
 jest.mock('../gateways/product.gateway');
 jest.mock('../usecases/stock.usecases');
 jest.mock('../adapters/stock.adapter');
+jest.mock('../gateways/category.gateway');
 
 describe('StockController', () => {
   const mockDatabase: IDatabase = {} as IDatabase;
@@ -50,27 +51,26 @@ describe('StockController', () => {
     });
   });
 
-  // TODO fix this
-  // describe('reserve', () => {
-  //   it('should reserve stock for the given products', async () => {
-  //     const productsWithQuantity: ProductWithQuantity[] = [
-  //       { productId: 1, quantity: 2 },
-  //       { productId: 2, quantity: 3 },
-  //     ];
+  describe('reserve', () => {
+    it('should reserve stock for the given products', async () => {
+      const productsWithQuantity: ProductWithQuantity[] = [
+        { productId: 1, quantity: 2 },
+        { productId: 2, quantity: 3 },
+      ];
 
-  //     (StockUseCases.reserve as jest.Mock).mockResolvedValue(undefined);
+      (StockUseCases.reserve as jest.Mock).mockResolvedValue(undefined);
 
-  //     await StockController.reserve(mockDatabase, productsWithQuantity);
+      await StockController.reserve(mockDatabase, productsWithQuantity);
 
-  //     expect(StockGateway).toHaveBeenCalledWith(mockDatabase);
-  //     expect(ProductGateway).toHaveBeenCalledWith(mockDatabase);
-  //     expect(CategoryGateway).toHaveBeenCalledWith(mockDatabase);
-  //     expect(StockUseCases.reserve).toHaveBeenCalledWith(
-  //       expect.any(StockGateway),
-  //       expect.any(ProductGateway),
-  //       expect.any(CategoryGateway),
-  //       productsWithQuantity,
-  //     );
-  //   });
-  // });
+      expect(StockGateway).toHaveBeenCalledWith(mockDatabase);
+      expect(ProductGateway).toHaveBeenCalledWith(mockDatabase);
+      expect(CategoryGateway).toHaveBeenCalledWith(mockDatabase);
+      expect(StockUseCases.reserve).toHaveBeenCalledWith(
+        expect.any(StockGateway),
+        expect.any(ProductGateway),
+        expect.any(CategoryGateway),
+        productsWithQuantity,
+      );
+    });
+  });
 });

@@ -1,214 +1,160 @@
-import { IProductGateway } from 'src/interfaces/product.gateway.interface';
-import { IStockGateway } from 'src/interfaces/stock.gateway.interface';
 import { StockUseCases } from './stock.usecases';
-import { Stock } from 'src/entities/stock.entity';
+import { ProductNotFoundError } from '../errors/product-not-found.error';
+import { StockNotFoundError } from '../errors/stock-not-found.error';
+import { InsufficientStockError } from '../errors/insufficient-stock.error';
+import { ProductOutOfStockError } from '../errors/product-out-of-stock.error';
+import { IStockGateway } from '../interfaces/stock.gateway.interface';
+import { IProductGateway } from '../interfaces/product.gateway.interface';
+import { ICategoryGateway } from '../interfaces/category.gateway.interface';
+import { Stock } from '../entities/stock.entity';
+import { Decimal } from '@prisma/client/runtime/library';
 import { Product } from 'src/entities/product.entity';
-import { ProductWithQuantity } from 'src/types/product-with-quantity.type';
-import { ProductNotFoundError } from 'src/errors/product-not-found.error';
-import { StockNotFoundError } from 'src/errors/stock-not-found.error';
-import { InsufficientStockError } from 'src/errors/insufficient-stock.error';
-import { ProductOutOfStockError } from 'src/errors/product-out-of-stock.error';
-import { ICategoryGateway } from 'src/interfaces/category.gateway.interface';
+import { Category } from 'src/entities/category.entity';
 
 describe('StockUseCases', () => {
   let stockGateway: jest.Mocked<IStockGateway>;
   let productGateway: jest.Mocked<IProductGateway>;
   let categoryGateway: jest.Mocked<ICategoryGateway>;
+  beforeAll(() => {
+    jest.useFakeTimers().setSystemTime(new Date('2024-12-01T21:26:46.713Z'));
+  });
 
+  afterAll(() => {
+    jest.useRealTimers();
+  });
   beforeEach(() => {
     stockGateway = {
-      findAll: jest.fn(),
-      findByProductId: jest.fn(),
-      create: jest.fn(),
       updateQuantityByProductId: jest.fn(),
-    };
+      findByProductId: jest.fn(),
+    } as unknown as jest.Mocked<IStockGateway>;
+
     productGateway = {
-      findAll: jest.fn(),
       findById: jest.fn(),
-      create: jest.fn(),
-      delete: jest.fn(),
-    };
+    } as unknown as jest.Mocked<IProductGateway>;
+
     categoryGateway = {
-      findAll: jest.fn(),
       findById: jest.fn(),
-    };
+    } as unknown as jest.Mocked<ICategoryGateway>;
   });
 
-  it('should update stock quantity', async () => {
-    const productId = 1;
-    const quantity = 10;
-    const mockStock = new Stock(1, new Date(), new Date(), 1, 10);
-    const mockProduct = new Product(
-      1,
-      new Date(),
-      new Date(),
-      'Product 1',
-      100,
-      'Description',
-      ['pic1.jpg'],
-      1,
-    );
+  describe('updateQuantityByProductId', () => {
+    it('should update stock quantity successfully', async () => {
+      const mockProduct = new Product(1, new Date(), new Date(), 'Mock Product', 100, 'A mock product for testing', [], 1);
 
-    (stockGateway.updateQuantityByProductId as jest.Mock).mockResolvedValue(
-      mockStock,
-    );
-    (productGateway.findById as jest.Mock).mockResolvedValue(mockProduct);
+      const productId = 1;
+      const quantity = 10;
+      const mockStock = new Stock(productId, new Date(), new Date(), productId, quantity);
 
-    const result = await StockUseCases.updateQuantityByProductId(
-      stockGateway,
-      productGateway,
-      productId,
-      quantity,
-    );
+      productGateway.findById.mockResolvedValue(mockProduct);
+      stockGateway.updateQuantityByProductId.mockResolvedValue(mockStock);
 
-    expect(stockGateway.updateQuantityByProductId).toHaveBeenCalledWith(
-      expect.objectContaining({ productId, quantity }),
-    );
-    expect(productGateway.findById).toHaveBeenCalledWith(productId);
-    expect(result).toEqual(mockStock);
+      const result = await StockUseCases.updateQuantityByProductId(stockGateway, productGateway, productId, quantity);
+
+      expect(productGateway.findById).toHaveBeenCalledWith(productId);
+      expect(stockGateway.updateQuantityByProductId).toHaveBeenCalledWith(Stock.new(productId, quantity));
+      expect(result).toEqual(mockStock);
+    });
+
+    it('should throw ProductNotFoundError if product does not exist', async () => {
+      const productId = 1;
+      const quantity = 10;
+
+      productGateway.findById.mockResolvedValue(null);
+
+      await expect(
+        StockUseCases.updateQuantityByProductId(stockGateway, productGateway, productId, quantity),
+      ).rejects.toThrow(ProductNotFoundError);
+    });
   });
 
-  // TODO fix this
-  // it('should throw ProductNotFoundError if product is not found', async () => {
-  //   const productId = 1;
-  //   const quantity = 2;
-  //   const productsWithQuantity: ProductWithQuantity[] = [
-  //     { productId, quantity },
-  //   ];
+  describe('reserve', () => {
+    it('should reserve stock successfully', async () => {
+      const productId = 1;
+      const quantity = 2;
+      const productsWithQuantity = [{ productId, quantity }];
+      const initialQuantity = 10;
+      const updatedQuantity = 8;
+      const mockProduct = new Product(1, new Date(), new Date(), 'Mock Product', 100, 'A mock product for testing', [], 1);
+      const mockCategory = new Category(1, new Date(), new Date(), 'MEAL');
 
-  //   (productGateway.findById as jest.Mock).mockResolvedValue(null);
-  //   (categoryGateway.findById as jest.Mock).mockResolvedValue({
-  //     getId: () => 1,
-  //   });
 
-  //   await expect(
-  //     StockUseCases.reserve(
-  //       stockGateway,
-  //       productGateway,
-  //       categoryGateway,
-  //       productsWithQuantity,
-  //     ),
-  //   ).rejects.toThrow(ProductNotFoundError);
+      const mockStock = new Stock(productId, new Date(), new Date(), productId, initialQuantity);
 
-  //   expect(productGateway.findById).toHaveBeenCalledWith(productId);
-  // });
+      productGateway.findById.mockResolvedValue(mockProduct);
+      stockGateway.findByProductId.mockResolvedValue(mockStock);
+      categoryGateway.findById.mockResolvedValue(mockCategory);
 
-  it('should throw StockNotFoundError if stock is not found', async () => {
-    const productId = 1;
-    const quantity = 2;
-    const productsWithQuantity: ProductWithQuantity[] = [
-      { productId, quantity },
-    ];
+      const result = await StockUseCases.reserve(stockGateway, productGateway, categoryGateway, productsWithQuantity);
 
-    (productGateway.findById as jest.Mock).mockResolvedValue({
-      getId: () => productId,
-    });
-    (stockGateway.findByProductId as jest.Mock).mockResolvedValue(null);
-    (categoryGateway.findById as jest.Mock).mockResolvedValue({
-      getId: () => 1,
+      expect(productGateway.findById).toHaveBeenCalledWith(productId);
+      expect(stockGateway.findByProductId).toHaveBeenCalledWith(productId);
+      expect(stockGateway.updateQuantityByProductId).toHaveBeenCalledWith(Stock.new(productId, updatedQuantity));
+      expect(result).toEqual([
+        {
+          product: mockProduct,
+          category: mockCategory,
+          stock: Stock.new(productId, quantity),
+        },
+      ]);
     });
 
-    await expect(
-      StockUseCases.reserve(
-        stockGateway,
-        productGateway,
-        categoryGateway,
-        productsWithQuantity,
-      ),
-    ).rejects.toThrow(StockNotFoundError);
+    it('should throw ProductNotFoundError if product does not exist', async () => {
+      const productId = 1;
+      const quantity = 2;
+      const productsWithQuantity = [{ productId, quantity }];
 
-    expect(productGateway.findById).toHaveBeenCalledWith(productId);
-    expect(stockGateway.findByProductId).toHaveBeenCalledWith(productId);
-  });
+      productGateway.findById.mockResolvedValue(null);
 
-  it('should throw InsufficientStockError if stock is insufficient', async () => {
-    const productId = 1;
-    const quantity = 2;
-    const productsWithQuantity: ProductWithQuantity[] = [
-      { productId, quantity },
-    ];
-
-    (productGateway.findById as jest.Mock).mockResolvedValue({
-      getId: () => productId,
-    });
-    (stockGateway.findByProductId as jest.Mock).mockResolvedValue({
-      getQuantity: () => 1,
-    });
-    (categoryGateway.findById as jest.Mock).mockResolvedValue({
-      getId: () => 1,
+      await expect(
+        StockUseCases.reserve(stockGateway, productGateway, categoryGateway, productsWithQuantity),
+      ).rejects.toThrow(ProductNotFoundError);
     });
 
-    await expect(
-      StockUseCases.reserve(
-        stockGateway,
-        productGateway,
-        categoryGateway,
-        productsWithQuantity,
-      ),
-    ).rejects.toThrow(InsufficientStockError);
+    it('should throw StockNotFoundError if stock does not exist', async () => {
+      const productId = 1;
+      const quantity = 2;
+      const productsWithQuantity = [{ productId, quantity }];
+      const mockProduct = new Product(1, new Date(), new Date(), 'Mock Product', 100, 'A mock product for testing', [], 1);
 
-    expect(productGateway.findById).toHaveBeenCalledWith(productId);
-    expect(stockGateway.findByProductId).toHaveBeenCalledWith(productId);
-  });
 
-  it('should throw ProductOutOfStockError if product is out of stock', async () => {
-    const productId = 1;
-    const quantity = 2;
-    const productsWithQuantity: ProductWithQuantity[] = [
-      { productId, quantity },
-    ];
+      productGateway.findById.mockResolvedValue(mockProduct);
+      stockGateway.findByProductId.mockResolvedValue(null);
 
-    (productGateway.findById as jest.Mock).mockResolvedValue({
-      getId: () => productId,
-    });
-    (stockGateway.findByProductId as jest.Mock).mockResolvedValue({
-      getQuantity: () => 0,
-    });
-    (categoryGateway.findById as jest.Mock).mockResolvedValue({
-      getId: () => 1,
+      await expect(
+        StockUseCases.reserve(stockGateway, productGateway, categoryGateway, productsWithQuantity),
+      ).rejects.toThrow(StockNotFoundError);
     });
 
-    await expect(
-      StockUseCases.reserve(
-        stockGateway,
-        productGateway,
-        categoryGateway,
-        productsWithQuantity,
-      ),
-    ).rejects.toThrow(ProductOutOfStockError);
+    it('should throw InsufficientStockError if stock is insufficient', async () => {
+      const productId = 1;
+      const quantity = 5;
+      const productsWithQuantity = [{ productId, quantity }];
+      const mockProduct = new Product(1, new Date(), new Date(), 'Mock Product', 100, 'A mock product for testing', [], 1);
 
-    expect(productGateway.findById).toHaveBeenCalledWith(productId);
-    expect(stockGateway.findByProductId).toHaveBeenCalledWith(productId);
-  });
+      const mockStock = new Stock(productId, new Date(), new Date(), productId, 3);
 
-  it('should update stock quantity successfully', async () => {
-    const productId = 1;
-    const quantity = 2;
-    const productsWithQuantity: ProductWithQuantity[] = [
-      { productId, quantity },
-    ];
+      productGateway.findById.mockResolvedValue(mockProduct);
+      stockGateway.findByProductId.mockResolvedValue(mockStock);
 
-    (productGateway.findById as jest.Mock).mockResolvedValue({
-      getId: () => productId,
-    });
-    (stockGateway.findByProductId as jest.Mock).mockResolvedValue({
-      getQuantity: () => 10,
-    });
-    (categoryGateway.findById as jest.Mock).mockResolvedValue({
-      getId: () => 1,
+      await expect(
+        StockUseCases.reserve(stockGateway, productGateway, categoryGateway, productsWithQuantity),
+      ).rejects.toThrow(InsufficientStockError);
     });
 
-    await StockUseCases.reserve(
-      stockGateway,
-      productGateway,
-      categoryGateway,
-      productsWithQuantity,
-    );
+    it('should throw ProductOutOfStockError if stock is zero', async () => {
+      const productId = 1;
+      const quantity = 2;
+      const productsWithQuantity = [{ productId, quantity }];
+      const mockProduct = new Product(1, new Date(), new Date(), 'Mock Product', 100, 'A mock product for testing', [], 1);
 
-    expect(productGateway.findById).toHaveBeenCalledWith(productId);
-    expect(stockGateway.findByProductId).toHaveBeenCalledWith(productId);
-    expect(stockGateway.updateQuantityByProductId).toHaveBeenCalledWith(
-      expect.objectContaining({ productId, quantity: 8 }),
-    );
+      const mockStock = new Stock(productId, new Date(), new Date(), productId, 0);
+
+      productGateway.findById.mockResolvedValue(mockProduct);
+      stockGateway.findByProductId.mockResolvedValue(mockStock);
+
+      await expect(
+        StockUseCases.reserve(stockGateway, productGateway, categoryGateway, productsWithQuantity),
+      ).rejects.toThrow(ProductOutOfStockError);
+    });
   });
 });
