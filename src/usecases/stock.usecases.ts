@@ -71,7 +71,7 @@ export class StockUseCases {
       const updatedStock = Stock.new(productId, updatedQuantity);
 
       stocksToUpdate.push(updatedStock);
-      productsDetail.push({ product, category, stock: updatedStock });
+      productsDetail.push({ product, category, stock: requestedStock });
     }
 
     for (const stock of stocksToUpdate) {
