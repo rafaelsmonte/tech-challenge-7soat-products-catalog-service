@@ -14,6 +14,7 @@ import { InsufficientStockError } from '../errors/insufficient-stock.error';
 import { ProductOutOfStockError } from '../errors/product-out-of-stock.error';
 import { ProductWithQuantity } from '../types/product-with-quantity.type';
 import { apiKeyMiddleware } from './api-key-auth.middleware';
+import { CategoryController } from '../controllers/category.controller';
 
 export class ProductsCatalogApp {
   constructor(private database: IDatabase) {}
@@ -42,6 +43,18 @@ export class ProductsCatalogApp {
     // Swagger
     const options = require('./swagger.json');
     app.use('/docs', swaggerUi.serve, swaggerUi.setup(options));
+
+    // Category endpoints
+    app.get('/category', async (request: Request, response: Response) => {
+      await CategoryController.findAll(this.database)
+        .then((categories) => {
+          response
+            .setHeader('Content-type', 'application/json')
+            .status(200)
+            .send(categories);
+        })
+        .catch((error) => this.handleError(error, response));
+    });
 
     // Product endpoints
     app.get('/product', async (request: Request, response: Response) => {
