@@ -4,6 +4,8 @@ import { ProductGateway } from '../gateways/product.gateway';
 import { StockGateway } from '../gateways/stock.gateway';
 import { IDatabase } from '../interfaces/database.interface';
 import { StockUseCases } from '../usecases/stock.usecases';
+import { CategoryGateway } from 'src/gateways/category.gateway';
+import { ProductDetail } from 'src/types/product-detail.type';
 
 export class StockController {
   static async update(
@@ -29,14 +31,18 @@ export class StockController {
   static async reserve(
     database: IDatabase,
     productsWithQuantity: ProductWithQuantity[],
-  ): Promise<void> {
+  ): Promise<string> {
     const stockGateway = new StockGateway(database);
     const productGateway = new ProductGateway(database);
+    const categoryGateway = new CategoryGateway(database);
 
-    await StockUseCases.reserve(
+    const productsDetail = await StockUseCases.reserve(
       stockGateway,
       productGateway,
+      categoryGateway,
       productsWithQuantity,
     );
+
+    return StockAdapter.adaptArrayJson(productsDetail);
   }
 }

@@ -11,13 +11,13 @@ export class ProductController {
     const categoryGateway = new CategoryGateway(database);
     const stockGateway = new StockGateway(database);
 
-    const productsAndCategory = await ProductUseCases.findAll(
+    const productsDetail = await ProductUseCases.findAll(
       productGateway,
       categoryGateway,
       stockGateway,
     );
 
-    return ProductAdapter.adaptArrayJson(productsAndCategory);
+    return ProductAdapter.adaptArrayJson(productsDetail);
   }
 
   static async findById(database: IDatabase, id: number): Promise<string> {

@@ -6,6 +6,8 @@ import { Stock } from '../entities/stock.entity';
 import { InsufficientStockError } from '../errors/insufficient-stock.error';
 import { ProductOutOfStockError } from '../errors/product-out-of-stock.error';
 import { ProductWithQuantity } from '../types/product-with-quantity.type';
+import { ProductDetail } from 'src/types/product-detail.type';
+import { ICategoryGateway } from 'src/interfaces/category.gateway.interface';
 
 export class StockUseCases {
   static async updateQuantityByProductId(
@@ -28,9 +30,11 @@ export class StockUseCases {
   static async reserve(
     stockGateway: IStockGateway,
     productGateway: IProductGateway,
+    categoryGateway: ICategoryGateway,
     productsWithQuantity: ProductWithQuantity[],
-  ): Promise<void> {
+  ): Promise<ProductDetail[]> {
     const stocksToUpdate: Stock[] = [];
+    const productsDetail: ProductDetail[] = [];
 
     for (const { productId, quantity } of productsWithQuantity) {
       const product = await productGateway.findById(productId);
@@ -62,11 +66,18 @@ export class StockUseCases {
         }
       }
 
-      stocksToUpdate.push(Stock.new(productId, updatedQuantity));
+      const category = await categoryGateway.findById(product.getCategoryId());
+
+      const updatedStock = Stock.new(productId, updatedQuantity);
+
+      stocksToUpdate.push(updatedStock);
+      productsDetail.push({ product, category, stock: updatedStock });
     }
 
     for (const stock of stocksToUpdate) {
       await stockGateway.updateQuantityByProductId(stock);
     }
+
+    return productsDetail;
   }
 }
