@@ -4,8 +4,7 @@ import { ProductGateway } from '../gateways/product.gateway';
 import { StockGateway } from '../gateways/stock.gateway';
 import { IDatabase } from '../interfaces/database.interface';
 import { StockUseCases } from '../usecases/stock.usecases';
-import { CategoryGateway } from 'src/gateways/category.gateway';
-import { ProductDetail } from 'src/types/product-detail.type';
+import { CategoryGateway } from '../gateways/category.gateway';
 
 export class StockController {
   static async update(
