@@ -2,6 +2,7 @@ import { PrismaDatabase } from './prisma-database.external'; // Replace with cor
 import { DatabaseError } from '../errors/database.error';
 import { Category } from '../entities/category.entity';
 import { Product } from '../entities/product.entity';
+import { Stock } from 'src/entities/stock.entity';
 
 jest.mock('@prisma/client', () => {
   const mockPrisma = {
@@ -14,6 +15,11 @@ jest.mock('@prisma/client', () => {
       findUnique: jest.fn(),
       create: jest.fn(),
       delete: jest.fn(),
+    },
+    stock: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
     },
   };
   return { PrismaClient: jest.fn(() => mockPrisma) };
@@ -71,7 +77,7 @@ describe('PrismaDatabase - findAllCategories', () => {
 
   it('should throw a DatabaseError if findMany fails', async () => {
     // Suppress console logs for this test
-    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => { });
 
     mockPrismaClient.category.findMany.mockRejectedValue(
       new Error('Database error'),
@@ -139,7 +145,7 @@ describe('PrismaDatabase - findCategoryById', () => {
 
   it('should throw a DatabaseError if findUnique fails', async () => {
     // Suppress console logs for this test
-    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => { });
 
     mockPrismaClient.category.findUnique.mockRejectedValue(
       new Error('Database error'),
@@ -237,6 +243,118 @@ describe('ProductDatabase', () => {
       );
 
       await expect(database.findProductById(1)).rejects.toThrow(DatabaseError);
+    });
+    describe('findStockByProductId', () => {
+      it('should return a stock entity if stock is found', async () => {
+        const mockStock = {
+          id: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          productId: 1,
+          quantity: 10,
+        };
+
+        mockPrismaClient.stock.findUnique.mockResolvedValue(mockStock);
+
+        const stock = await database.findStockByProductId(1);
+
+        expect(stock).toBeInstanceOf(Stock);
+        expect(stock?.getId()).toBe(1);
+        expect(stock?.getQuantity()).toBe(10);
+      });
+
+      it('should return null if no stock is found', async () => {
+        mockPrismaClient.stock.findUnique.mockResolvedValue(null);
+
+        const stock = await database.findStockByProductId(999);
+
+        expect(stock).toBeNull();
+      });
+
+      it('should throw DatabaseError if there is an error during database interaction', async () => {
+        mockPrismaClient.stock.findUnique.mockRejectedValue(new Error('Database error'));
+
+        await expect(database.findStockByProductId(1)).rejects.toThrow(
+          DatabaseError
+        );
+        await expect(database.findStockByProductId(1)).rejects.toThrow(
+          'Failed to find stock'
+        );
+      });
+    });
+
+    describe('createStock', () => {
+      it('should return a created stock entity', async () => {
+        const stockData = new Stock(0, new Date(), new Date(), 1, 10);
+        const mockStock = {
+          id: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          productId: 1,
+          quantity: 10,
+        };
+
+        mockPrismaClient.stock.create.mockResolvedValue(mockStock);
+
+        const stock = await database.createStock(stockData);
+
+        expect(stock).toBeInstanceOf(Stock);
+        expect(stock.getProductId()).toBe(1);
+        expect(stock.getQuantity()).toBe(10);
+      });
+
+      it('should throw DatabaseError if there is an error during stock creation', async () => {
+        const stockData = new Stock(0, new Date(), new Date(), 1, 10);
+
+        mockPrismaClient.stock.create.mockRejectedValue(new Error('Database error'));
+
+        await expect(database.createStock(stockData)).rejects.toThrow(
+          DatabaseError
+        );
+        await expect(database.createStock(stockData)).rejects.toThrow(
+          'Failed to save stock'
+        );
+      });
+    });
+
+    describe('updateStockQuantityByProductId', () => {
+      it('should return the updated stock entity when quantity is updated', async () => {
+        const updatedStockData = new Stock(1, new Date(), new Date(), 1, 20);
+        const mockUpdatedStock = {
+          id: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          productId: 1,
+          quantity: 20,
+        };
+
+        mockPrismaClient.stock.update.mockResolvedValue(mockUpdatedStock);
+
+        const stock = await database.updateStockQuantityByProductId(1, 20);
+
+        expect(stock).toBeInstanceOf(Stock);
+        expect(stock?.getProductId()).toBe(1);
+        expect(stock?.getQuantity()).toBe(20);
+      });
+
+      it('should return null if no stock is updated', async () => {
+        mockPrismaClient.stock.update.mockResolvedValue(null);
+
+        const stock = await database.updateStockQuantityByProductId(999, 20);
+
+        expect(stock).toBeNull();
+      });
+
+      it('should throw DatabaseError if there is an error during stock update', async () => {
+        mockPrismaClient.stock.update.mockRejectedValue(new Error('Database error'));
+
+        await expect(database.updateStockQuantityByProductId(1, 20)).rejects.toThrow(
+          DatabaseError
+        );
+        await expect(database.updateStockQuantityByProductId(1, 20)).rejects.toThrow(
+          'Failed to update stock'
+        );
+      });
     });
   });
 
