@@ -7,7 +7,12 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000"
+      "url": "https://evff0dxwnk.execute-api.us-east-1.amazonaws.com/apis/orders/",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server"
     }
   ],
   "paths": {
