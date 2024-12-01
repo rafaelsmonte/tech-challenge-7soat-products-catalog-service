@@ -12,10 +12,8 @@ jest.mock('../usecases/category.usecases');
 describe('CategoryController', () => {
   describe('findAll', () => {
     it('should fetch all categories and return them as JSON', async () => {
-      // Mock database
       const mockDatabase: IDatabase = {} as IDatabase;
 
-      // Mock categories
       const mockCategories: Category[] = [
         {
           getId: jest.fn().mockReturnValue(1),
@@ -25,14 +23,11 @@ describe('CategoryController', () => {
         } as unknown as Category,
       ];
 
-      // Mock Gateway behavior
       const mockCategoryGateway = new CategoryGateway(mockDatabase);
       jest.spyOn(mockCategoryGateway, 'findAll').mockResolvedValue(mockCategories);
 
-      // Mock UseCases behavior
       jest.spyOn(CategoryUseCases, 'findAll').mockResolvedValue(mockCategories);
 
-      // Mock Adapter behavior
       const mockAdaptedJson = JSON.stringify([
         {
           id: 1,
@@ -43,10 +38,8 @@ describe('CategoryController', () => {
       ]);
       jest.spyOn(CategoryAdapter, 'adaptArrayJson').mockReturnValue(mockAdaptedJson);
 
-      // Call the controller
       const result = await CategoryController.findAll(mockDatabase);
 
-      // Assertions
       expect(CategoryUseCases.findAll).toHaveBeenCalledTimes(1);
       expect(CategoryUseCases.findAll).toHaveBeenCalledWith(expect.any(CategoryGateway));
       expect(CategoryAdapter.adaptArrayJson).toHaveBeenCalledWith(mockCategories);
@@ -54,23 +47,17 @@ describe('CategoryController', () => {
     });
 
     it('should return an empty JSON array if no categories are found', async () => {
-      // Mock database
       const mockDatabase: IDatabase = {} as IDatabase;
 
-      // Mock Gateway behavior
       const mockCategoryGateway = new CategoryGateway(mockDatabase);
       jest.spyOn(mockCategoryGateway, 'findAll').mockResolvedValue([]);
 
-      // Mock UseCases behavior
       jest.spyOn(CategoryUseCases, 'findAll').mockResolvedValue([]);
 
-      // Mock Adapter behavior
       jest.spyOn(CategoryAdapter, 'adaptArrayJson').mockReturnValue('[]');
 
-      // Call the controller
       const result = await CategoryController.findAll(mockDatabase);
 
-      // Assertions
       expect(CategoryUseCases.findAll).toHaveBeenCalledTimes(2);
       expect(CategoryUseCases.findAll).toHaveBeenCalledWith(expect.any(CategoryGateway));
       expect(CategoryAdapter.adaptArrayJson).toHaveBeenCalledWith([]);
