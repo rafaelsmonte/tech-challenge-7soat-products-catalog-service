@@ -13,11 +13,8 @@ export class CategoryController {
   }
 
   //method for testing sonnarqube coverage, should not be merged on main
-  static async findAll_testing_coverage(database: IDatabase): Promise<string> {
-    const categoryGateway = new CategoryGateway(database);
-    const categories = await CategoryUseCases.findAll(categoryGateway);
-    const categoriesJson = CategoryAdapter.adaptArrayJson(categories);
-
-    return categoriesJson;
+  static testing_coverage(number: number): string {
+    if (number > 10) return '10';
+    return number.toString();
   }
 }
