@@ -10,5 +10,6 @@ export class CategoryController {
     const categoriesJson = CategoryAdapter.adaptArrayJson(categories);
 
     return categoriesJson;
+
   }
 }
