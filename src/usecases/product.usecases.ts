@@ -45,7 +45,7 @@ export class ProductUseCases {
 
     if (!product) throw new ProductNotFoundError('Product not found');
 
-    const category = await categoryGateway.findById(product.getId());
+    const category = await categoryGateway.findById(product.getCategoryId());
 
     if (!category) throw new CategoryNotFoundError('Category not found');
 
