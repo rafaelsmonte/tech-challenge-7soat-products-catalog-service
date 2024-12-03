@@ -11,4 +11,13 @@ export class CategoryController {
 
     return categoriesJson;
   }
+
+  //method for testing sonnarqube coverage, should not be merged on main
+  static async findAll_testing_coverage(database: IDatabase): Promise<string> {
+    const categoryGateway = new CategoryGateway(database);
+    const categories = await CategoryUseCases.findAll(categoryGateway);
+    const categoriesJson = CategoryAdapter.adaptArrayJson(categories);
+
+    return categoriesJson;
+  }
 }
