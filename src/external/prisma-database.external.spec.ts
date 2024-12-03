@@ -144,7 +144,6 @@ describe('PrismaDatabase - findCategoryById', () => {
   });
 
   it('should throw a DatabaseError if findUnique fails', async () => {
-    // Suppress console logs for this test
     jest.spyOn(console, 'log').mockImplementation(() => { });
 
     mockPrismaClient.category.findUnique.mockRejectedValue(

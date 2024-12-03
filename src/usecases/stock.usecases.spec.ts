@@ -74,21 +74,26 @@ describe('StockUseCases', () => {
       const productsWithQuantity = [{ productId, quantity }];
       const initialQuantity = 10;
       const updatedQuantity = 8;
-      const mockProduct = new Product(1, new Date(), new Date(), 'Mock Product', 100, 'A mock product for testing', [], 1);
+      const mockProduct = new Product(productId, new Date(), new Date(), 'Mock Product', 100, 'A mock product for testing', [], 1);
       const mockCategory = new Category(1, new Date(), new Date(), 'MEAL');
 
-
-      const mockStock = new Stock(productId, new Date(), new Date(), productId, initialQuantity);
+      //Giver the following stock
+      const mockStock = new Stock(1, new Date(), new Date(), mockProduct.getId(), initialQuantity);
 
       productGateway.findById.mockResolvedValue(mockProduct);
       stockGateway.findByProductId.mockResolvedValue(mockStock);
       categoryGateway.findById.mockResolvedValue(mockCategory);
 
+
+      //When I reserve stock for the given products
       const result = await StockUseCases.reserve(stockGateway, productGateway, categoryGateway, productsWithQuantity);
 
       expect(productGateway.findById).toHaveBeenCalledWith(productId);
       expect(stockGateway.findByProductId).toHaveBeenCalledWith(productId);
       expect(stockGateway.updateQuantityByProductId).toHaveBeenCalledWith(Stock.new(productId, updatedQuantity));
+
+      
+      //Then the result should be equal to the product with the reserved stock      
       expect(result).toEqual([
         {
           product: mockProduct,
