@@ -23,3 +23,9 @@ This documentation is organized as follows:
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+## Evidences
+
+![Coverage](docs/evidences/products-catalog-coverage.png)
+![Sucessful pipeline on push](docs/evidences/products-catalog-pipeline.png)
+![Sucessful pipeline on pr](docs/evidences/products-catalog-pipeline-pr.png)
